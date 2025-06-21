@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>圖書館檢索</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>圖書館檢索</h1>
+    <div id="controls">
+      <label for="county-select">選擇縣市：</label>
+      <select id="county-select">
+        <option value="all">全部縣市</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <section id="map" aria-label="地圖檢索區"></section>
+    <section id="list-section">
+      <h2>圖書館列表</h2>
+      <div id="library-list"></div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
