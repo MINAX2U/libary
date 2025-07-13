@@ -22,6 +22,7 @@ const DATA_FILES = [
   { file: "k2_new.json", label: "K2" },
   { file: "k1_new.json", label: "K1" },
   { file: "school_exp.json", label: "SchoolExp" },
+  { file: "afterschool.json", label: "afterschool" },
 ];
 
 const JSONS_PATH = "./jsons/";
@@ -83,6 +84,17 @@ function normalizeData(file, data) {
   // libraries.json 特例
   if (file === "libraries.json" && Array.isArray(data)) {
     return data.flatMap((city) => city["圖書館資訊"] || []);
+  }
+  // afterschool.json 特例
+  if (file === "afterschool.json") {
+    return (Array.isArray(data) ? data : []).map((item) => ({
+      Name: item["短期補習班名稱"] || "",
+      Address: item["地址"] || "",
+      Category: item["短期補習班類別"] || "",
+      City: item["地區縣市"] || "",
+      Date: item["立案時間"] || "",
+      TEL: item["電子郵件"] || "",
+    }));
   }
   let arr = Array.isArray(data) ? data : [];
 
@@ -229,11 +241,14 @@ listEl.addEventListener("click", function (e) {
 const FIELD_LABELS = {
   Name: "名稱",
   Address: "地址",
-  TEL: "電話",
+  TEL: "電子郵件",
   URL: "網站",
   Intro: "簡介",
   Longitude: "經度",
   Latitude: "緯度",
+  Category: "補習班類別",
+  City: "縣市",
+  Date: "立案時間",
   機構名稱: "機構名稱",
   縣市名稱: "縣市",
   鄉鎮市區: "鄉鎮市區",
@@ -243,7 +258,6 @@ const FIELD_LABELS = {
   學校代碼: "學校代碼",
   山地別: "山地別",
   "公/私立": "公/私立",
-  // ...可依需求擴充
 };
 
 function renderList(data) {
