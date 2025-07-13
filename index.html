@@ -1,32 +1,46 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>圖書館檢索</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header>
-    <h1>圖書館檢索</h1>
-    <div id="controls">
-      <label for="county-select">選擇縣市：</label>
-      <select id="county-select">
-        <option value="all">全部縣市</option>
-      </select>
-    </div>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>圖書館檢索</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>圖書館檢索</h1>
+      <div id="controls">
+        <label for="data-type-select">資料類型：</label>
+        <select id="data-type-select"></select>
+        <label for="county-select">選擇縣市：</label>
+        <select id="county-select">
+          <option value="all">全部縣市</option>
+        </select>
+      </div>
+    </header>
 
-  <main>
-    <section id="map" aria-label="地圖檢索區"></section>
-    <section id="list-section">
-      <h2>圖書館列表</h2>
-      <div id="library-list"></div>
+    <main>
+      <section id="map" aria-label="地圖檢索區"></section>
+      <section id="list-section">
+        <h2>圖書館列表</h2>
+        <div id="library-list"></div>
+      </section>
+    </main>
+    <section id="intro-section">
+      <h3>網站介紹</h3>
+      <p>
+        這是一個開放資料地圖查詢平台，支援多種資料集（如圖書館、學校等），可依縣市篩選並在地圖上顯示位置。
+      </p>
     </section>
-  </main>
-
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="script.js"></script>
-</body>
+    <div id="intro-modal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="modal-close" id="modal-close">&times;</span>
+        <h3 id="modal-title"></h3>
+        <p id="modal-intro"></p>
+      </div>
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>
