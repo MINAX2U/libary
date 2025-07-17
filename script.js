@@ -83,21 +83,31 @@ function loadData(file) {
 function normalizeData(file, data) {
   // libraries.json 特例
   if (file === "libraries.json" && Array.isArray(data)) {
-    return data.flatMap((city) => city["圖書館資訊"] || []);
+    return data.flatMap((city) =>
+      (city["圖書館資訊"] || []).map((item) => {
+        // 嘗試抓縣市
+        let county =
+          city["縣市"] || extractCounty(item["地址"] || item["Address"] || "");
+        return { ...item, County: county };
+      })
+    );
   }
   // afterschool.json 特例
   if (file === "afterschool.json") {
-    return (Array.isArray(data) ? data : []).map((item) => ({
-      Name: item["短期補習班名稱"] || "",
-      Address: item["地址"] || "",
-      Category: item["短期補習班類別"] || "",
-      City: item["地區縣市"] || "",
-      Date: item["立案時間"] || "",
-      TEL: item["電子郵件"] || "",
-    }));
+    return (Array.isArray(data) ? data : []).map((item) => {
+      let county = item["地區縣市"] || extractCounty(item["地址"] || "");
+      return {
+        Name: item["短期補習班名稱"] || "",
+        Address: item["地址"] || "",
+        Category: item["短期補習班類別"] || "",
+        City: item["地區縣市"] || "",
+        Date: item["立案時間"] || "",
+        TEL: item["電子郵件"] || "",
+        County: county,
+      };
+    });
   }
   let arr = Array.isArray(data) ? data : [];
-
   // 欄位對應表
   const fieldMap = [
     {
@@ -108,39 +118,49 @@ function normalizeData(file, data) {
       name: "Address",
       keys: ["Address", "地址", "學校地址", "圖書館地址"],
     },
-    { name: "Latitude", keys: ["Latitude", "緯度", "lat", "Y", "y"] },
-    { name: "Longitude", keys: ["Longitude", "經度", "lon", "lng", "X", "x"] },
+    {
+      name: "Latitude",
+      keys: ["Latitude", "緯度", "lat", "Y", "y", "latitude"],
+    },
+    {
+      name: "Longitude",
+      keys: ["Longitude", "經度", "lon", "lng", "X", "x", "longitude"],
+    },
     { name: "TEL", keys: ["TEL", "電話", "聯絡電話"] },
     { name: "URL", keys: ["URL", "網址", "連結", "官網"] },
     { name: "Intro", keys: ["Intro", "簡介", "備註", "說明"] },
+    { name: "City", keys: ["City", "縣市", "縣市名稱"] },
   ];
-
   // 特例：faraway3.json、native_new.json
   if (file === "faraway3.json" || file === "native_new.json") {
     return arr.map((item) => {
-      // 名稱
       let name =
         item["本校名稱"] ||
         item["學校名稱"] ||
         item["Name"] ||
         item["名稱"] ||
         "";
-      // 地址組合
-      let address = (item["縣市名稱"] || "") + (item["鄉鎮市區"] || "") + name;
-      // 電話
+      let county = (
+        item["縣市名稱"] ||
+        item["縣市"] ||
+        extractCounty(item["地址"] || item["Address"] || "")
+      ).replace(/^\[\d+\]/, "");
+      let address = county + (item["鄉鎮市區"] || "") + name;
       let tel = item["電話"] || item["TEL"] || "";
+      let lat = item["緯度"] || item["Latitude"] || item["latitude"] || "";
+      let lon = item["經度"] || item["Longitude"] || item["longitude"] || "";
       return {
         Name: name,
         Address: address,
         TEL: tel,
-        Latitude: "",
-        Longitude: "",
+        Latitude: lat,
+        Longitude: lon,
         URL: "",
         Intro: "",
+        County: county,
       };
     });
   }
-
   // 一般自動對應
   return arr.map((item) => {
     const obj = {};
@@ -159,11 +179,26 @@ function normalizeData(file, data) {
       if (!obj.Address) obj.Address = item["地址"] || "";
       if (!obj.TEL) obj.TEL = item["電話"] || "";
     }
+    // 補 County 欄位
+    obj.County =
+      item["縣市"] ||
+      item["縣市名稱"] ||
+      item["City"] ||
+      extractCounty(obj.Address || "");
     return obj;
   });
 }
 
-function extractCounty(address) {
+function extractCounty(addressOrObj) {
+  // 若傳進來是物件且有 County 欄位，直接回傳
+  if (
+    typeof addressOrObj === "object" &&
+    addressOrObj !== null &&
+    addressOrObj.County
+  ) {
+    return addressOrObj.County;
+  }
+  let address = addressOrObj;
   if (!address) return "";
   // 嘗試抓「XX縣」、「XX市」、「XX區」等
   const match = address.match(/[\u4e00-\u9fa5]{2,4}[縣市區]/);
@@ -174,7 +209,7 @@ function extractCounty(address) {
 
 function initCountyOptions(data) {
   countySelect.innerHTML = '<option value="all">全部縣市</option>';
-  const counties = [...new Set(data.map((r) => extractCounty(r.Address)))]
+  const counties = [...new Set(data.map((r) => r.County || extractCounty(r)))]
     .filter(Boolean)
     .sort();
   counties.forEach((c) => {
@@ -192,7 +227,9 @@ function onFilterChange() {
   const filtered =
     county === "all"
       ? records
-      : records.filter((r) => r.Address && r.Address.startsWith(county));
+      : records.filter((r) =>
+          (r.County || extractCounty(r)).startsWith(county)
+        );
   renderMap(filtered);
   renderList(filtered);
 }
