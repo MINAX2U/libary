@@ -1,6 +1,8 @@
 // 支援多個 JSON 檔案，並給每個檔案一個可編輯名稱
 const DATA_FILES = [
-  { file: "libraries.json", label: "圖書館" },
+  { file: "k1_new.json", label: "K1" },
+  { file: "e1_new.json", label: "E1" },
+  { file: "j1_new.json", label: "J1" },
   { file: "school04_new.json", label: "學校(範例)" },
   { file: "s2_new.json", label: "S2" },
   { file: "sp1_new.json", label: "SP1" },
@@ -15,14 +17,12 @@ const DATA_FILES = [
   { file: "faraway3.json", label: "Faraway3" },
   { file: "faraway2.json", label: "Faraway2" },
   { file: "faraway1.json", label: "Faraway1" },
+  { file: "k2_new.json", label: "K2" },
   { file: "aj_new.json", label: "AJ" },
   { file: "ac.json", label: "AC" },
-  { file: "j1_new.json", label: "J1" },
-  { file: "e1_new.json", label: "E1" },
-  { file: "k2_new.json", label: "K2" },
-  { file: "k1_new.json", label: "K1" },
   { file: "school_exp.json", label: "SchoolExp" },
   { file: "afterschool.json", label: "afterschool" },
+  { file: "libraries.json", label: "圖書館" },
 ];
 
 const JSONS_PATH = "./jsons/";
@@ -104,6 +104,8 @@ function normalizeData(file, data) {
         Date: item["立案時間"] || "",
         TEL: item["電子郵件"] || "",
         County: county,
+        Latitude: item["緯度"] || item["Latitude"] || item["latitude"] || "",
+        Longitude: item["經度"] || item["Longitude"] || item["longitude"] || "",
       };
     });
   }
